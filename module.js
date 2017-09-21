@@ -11,13 +11,13 @@ import gulpIf from 'gulp-if';
 import gulpUglify from 'gulp-uglify';
 import babelArrowPlugin from 'babel-plugin-transform-es2015-arrow-functions';
 
-let develop, watchers = {}, output, cwd;
+let develop, watchers = {}, output, source_cwd, cwd;
 
 export function init (config) {
 	develop = args.env() === 'develop';
 
 	output = config.output;
-	cwd = path.join (process.cwd(), config.cwd);
+	source_cwd = path.join (process.cwd(), config.cwd);
 	buildAll();
 
 	let bs = globals.get('bs');
@@ -27,8 +27,8 @@ export function init (config) {
 		let modify = (file) => {
 
 			let name = path.basename (file, '.json') + '.js';
-			let contents = utils.json (path.join (cwd, file));
-			let cwd = contents.cwd || cwd;
+			let contents = utils.json (path.join (source_cwd, file));
+			cwd = contents.cwd || source_cwd;
 
 			if (watchers.hasOwnProperty (name)) {
 				// build current list of files
@@ -63,7 +63,7 @@ export function init (config) {
 		};
 
 		bs.watch ('*.json', {
-			cwd: cwd,
+			cwd: source_cwd,
 			ignoreInitial: false
 		})
 			.on ('add', modify)
@@ -73,7 +73,7 @@ export function init (config) {
 }
 
 function applyToFiles (cb) {
-	let items = fs.readdirSync (cwd)
+	let items = fs.readdirSync (source_cwd)
 		.filter (function (file) {
 			return file.toString().endsWith ('.json');
 		});
@@ -90,7 +90,7 @@ function build (contents, name) {
 	let opts = {
 		sourcemaps: sourcemaps,
 		cwd: contents.cwd ?
-			path.join (process.cwd(), contents.cwd) : cwd
+			path.join (process.cwd(), contents.cwd) : source_cwd
 	};
 
 	contents.files = utils.filterNonExistingFiles (contents.files, opts.cwd);
@@ -108,7 +108,7 @@ function build (contents, name) {
 function buildAll () {
 	applyToFiles ((file) => {
 		let name = path.basename (file, '.json') + '.js';
-		let contents = utils.json (path.join (cwd, file));
+		let contents = utils.json (path.join (source_cwd, file));
 
 		// build current list of files
 		build(contents, name);
