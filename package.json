@@ -1,0 +1,39 @@
+{
+  "name": "json2js-bundle",
+  "version": "0.0.1",
+  "dependencies": {
+    "fit-core": "^0.0.1",
+    "gulp-if": "^2.0.2",
+    "gulp-uglify": "^2.1.2",
+    "uglify-js": "^3.1.1",
+    "babel-core": "^6.26.0",
+    "readable-stream": "^2.3.3",
+    "duplexer2": "^0.0.2",
+    "through2": "^2.0.3",
+    "vinyl-fs": "^2.4.4"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
+    "del": "^2.2.2",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-plumber": "^1.1.0",
+    "rollup-plugin-commonjs": "^8.2.1",
+    "rollup-plugin-local-resolve": "^1.0.7",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  },
+  "main": "bundle.js",
+  "module": "module.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fit-js/json2js-bundle.git"
+  },
+  "bundle": {
+    "group": "js"
+  },
+  "author": {
+    "name": "thfrlw",
+    "email": "fitjs@icloud.com"
+  },
+  "license": "Apache-2.0"
+}
