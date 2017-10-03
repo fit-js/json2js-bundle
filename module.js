@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { args, globals, utils } from 'fit-core';
 
 import del from 'del';
 import vfs from 'vinyl-fs';
@@ -11,23 +10,24 @@ import gulpIf from 'gulp-if';
 import gulpUglify from 'gulp-uglify';
 import babelArrowPlugin from 'babel-plugin-transform-es2015-arrow-functions';
 
-let develop, watchers = {}, output, source_cwd, cwd;
+let utils, develop, watchers = {}, output, source_cwd, cwd;
 
-export function init (config) {
-	develop = args.env() === 'develop';
+export function init (config, core) {
+	utils  = core.utils;
+	develop = core.args.env() === 'develop';
 
 	output = config.output;
 	source_cwd = path.join (process.cwd(), config.cwd);
 	buildAll();
 
-	let bs = globals.get('bs');
+	let bs = core.globals.get('bs');
 
 	if (develop && bs) {
 		// change/add callback
 		let modify = (file) => {
 
 			let name = path.basename (file, '.json') + '.js';
-			let contents = utils.json (path.join (source_cwd, file));
+			let contents = core.utils.json (path.join (source_cwd, file));
 			cwd = contents.cwd || source_cwd;
 
 			if (watchers.hasOwnProperty (name)) {
