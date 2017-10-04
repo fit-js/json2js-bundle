@@ -1,6 +1,7 @@
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
 import localResolve from 'rollup-plugin-local-resolve';
+import json from 'rollup-plugin-json';
 import * as pkg from './package.json';
 
 export default {
@@ -10,10 +11,8 @@ export default {
 		format: 'cjs'
 	},
 	external: [
-		'fit-core',
 		'uglify-js',
 		'gulp-uglify',
-		'gulp-if',
 
 		'babel-core',
 		'readable-stream',
@@ -37,6 +36,7 @@ export default {
 			ignoreGlobal: true,
 			sourceMap: false,
 			ignore: ['fs', 'path']
-		})
+		}),
+		json()
 	]
 };

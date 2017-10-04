@@ -3,12 +3,13 @@ import path from 'path';
 
 import del from 'del';
 import vfs from 'vinyl-fs';
+import { obj as thru } from 'through2';
 import gulpPlumber from 'gulp-plumber';
 import gulpBabel from 'gulp-babel';
 import gulpConcat from 'gulp-concat';
-import gulpIf from 'gulp-if';
 import gulpUglify from 'gulp-uglify';
 import babelArrowPlugin from 'babel-plugin-transform-es2015-arrow-functions';
+// import * as pkg from './package.json';
 
 let utils, develop, watchers = {}, output, source_cwd, cwd;
 
@@ -88,7 +89,7 @@ function build (contents, name) {
 	let sourcemaps = (!contents.skip && contents.sourcemaps !== false) && develop;
 	let minimize = (!contents.skip && contents.minimize !== false) || !develop;
 	let opts = {
-		sourcemaps: sourcemaps,
+		sourcemaps,
 		cwd: contents.cwd ?
 			path.join (process.cwd(), contents.cwd) : source_cwd
 	};
@@ -99,9 +100,9 @@ function build (contents, name) {
 		.pipe (gulpPlumber())
 		.pipe (gulpBabel ({ plugins: [babelArrowPlugin] }))
 		.pipe (gulpConcat (name))
-		.pipe (gulpIf (minimize, gulpUglify()))
+		.pipe (minimize ? gulpUglify() : thru())
 		.pipe (vfs.dest (output, {
-			sourcemaps: (!contents.skip && develop) ? '.' : false
+			sourcemaps: sourcemaps ? '.' : false
 		}));
 }
 
