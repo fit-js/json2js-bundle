@@ -13,12 +13,12 @@ import babelArrowPlugin from 'babel-plugin-transform-es2015-arrow-functions';
 
 let utils, develop, watchers = {}, output, source_cwd, cwd;
 
-export function init (config, core) {
-	utils  = core.utils;
+export function init(config, core) {
+	utils = core.utils;
 	develop = core.args.env() === 'develop';
 
 	output = config.output;
-	source_cwd = path.join (process.cwd(), config.cwd);
+	source_cwd = path.join(process.cwd(), config.cwd);
 	buildAll();
 
 	let bs = core.globals.get('bs');
@@ -27,89 +27,96 @@ export function init (config, core) {
 		// change/add callback
 		let modify = (file) => {
 
-			let name = path.basename (file, '.json') + '.js';
-			let contents = core.utils.json (path.join (source_cwd, file));
+			let name = path.basename(file, '.json') + '.js';
+			let contents = core.utils.json(path.join(source_cwd, file));
 			cwd = contents.cwd || source_cwd;
 
-			if (watchers.hasOwnProperty (name)) {
+			if (watchers.hasOwnProperty(name)) {
 				// build current list of files
-				build (contents, name);
+				build(contents, name);
 
 				// unwatch old list of files inside json
 				watchers[name].close();
 			}
 
 			// watch new list of files inside
-			watchers[name] = bs.watch (contents.files, {
+			watchers[name] = bs.watch(contents.files, {
 				cwd: cwd
 			})
 				.on('change', () => {
-					build (contents, name);
+					build(contents, name);
 				});
 		};
 
 		// delete callback
 		let unlink = (file) => {
-			let name = path.basename (file, '.json');
+			let name = path.basename(file, '.json');
 
 			// unwatch files inside json
-			if (watchers.hasOwnProperty (name)) {
+			if (watchers.hasOwnProperty(name)) {
 				watchers[name].close();
 			}
 
 			// remove json's related js
-			del ([name + '.js', name + '.map'], {
+			del([name + '.js', name + '.map'], {
 				cwd: output
 			});
 		};
 
-		bs.watch ('*.json', {
+		bs.watch('*.json', {
 			cwd: source_cwd,
 			ignoreInitial: false
 		})
-			.on ('add', modify)
-			.on ('change', modify)
-			.on ('unlink', unlink);
+			.on('add', modify)
+			.on('change', modify)
+			.on('unlink', unlink);
 	}
 }
 
-function applyToFiles (cb) {
-	let items = fs.readdirSync (source_cwd)
-		.filter (function (file) {
-			return file.toString().endsWith ('.json');
+function applyToFiles(cb) {
+	let items = fs.readdirSync(source_cwd)
+		.filter(function (file) {
+			return file.toString().endsWith('.json');
 		});
 
 	for (let i = 0, len = items.length; i < len; i++) {
-		cb (items[i]);
+		cb(items[i]);
 	}
 }
 
-function build (contents, name) {
+function build(contents, name) {
 	if (!contents) return false;
-	let sourcemaps = (!contents.skip && contents.sourcemaps !== false) && develop;
-	let minimize = (!contents.skip && contents.minimize !== false) || !develop;
+
+	let sourcemaps = contents.sourcemaps !== undefined && contents.sourcemaps !== false;
+	let minimize = contents.minimize !== false || !develop;
+
+	if (contents.skip === true) {
+		sourcemaps = false;
+		minimize = false;
+	}
+
 	let opts = {
 		sourcemaps,
 		cwd: contents.cwd ?
-			path.join (process.cwd(), contents.cwd) : source_cwd
+			path.join(process.cwd(), contents.cwd) : source_cwd
 	};
 
-	contents.files = utils.filterNonExistingFiles (contents.files, opts.cwd);
+	contents.files = utils.filterNonExistingFiles(contents.files, opts.cwd);
 
-	return vfs.src (contents.files, opts)
-		.pipe (gulpPlumber())
-		.pipe (gulpBabel ({ plugins: [babelArrowPlugin] }))
-		.pipe (gulpConcat (name))
-		.pipe (minimize ? gulpUglify() : thru())
-		.pipe (vfs.dest (output, {
+	return vfs.src(contents.files, opts)
+		.pipe(gulpPlumber())
+		.pipe(gulpBabel({ plugins: [babelArrowPlugin] }))
+		.pipe(gulpConcat(name))
+		.pipe(minimize ? gulpUglify() : thru())
+		.pipe(vfs.dest(output, {
 			sourcemaps: sourcemaps ? '.' : false
 		}));
 }
 
-function buildAll () {
-	applyToFiles ((file) => {
-		let name = path.basename (file, '.json') + '.js';
-		let contents = utils.json (path.join (source_cwd, file));
+function buildAll() {
+	applyToFiles((file) => {
+		let name = path.basename(file, '.json') + '.js';
+		let contents = utils.json(path.join(source_cwd, file));
 
 		// build current list of files
 		build(contents, name);
