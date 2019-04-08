@@ -1,6 +1,6 @@
 {
   "name": "json2js-bundle",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "scripts": {
     "dev": "rollup -c --watch",
     "prod": "rollup -c"
@@ -10,7 +10,7 @@
     "gulp-uglify": "^2.1.2",
     "readable-stream": "^2.3.3",
     "through2": "^2.0.3",
-    "vinyl-fs": "^2.4.4"
+    "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
